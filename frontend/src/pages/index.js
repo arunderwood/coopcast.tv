@@ -21,7 +21,7 @@ const IndexPage = () => {
       <h1 className="heading">
         CoopCast.tv
         <br />
-        <span className="heading-accent">🐔🐔🐔</span>
+        <span className="heading-accent">🐔🐔🐔🐔🐔🐔</span>
       </h1>
       <div className="video-container">
         <YouTube

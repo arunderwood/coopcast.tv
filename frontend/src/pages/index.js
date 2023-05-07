@@ -2,7 +2,6 @@ import Layout from "../components/layout"
 
 import * as React from "react"
 import YouTube from "react-youtube"
-import { Helmet } from "react-helmet"
 
 const IndexPage = () => {
   const videoOptions = {
@@ -11,13 +10,8 @@ const IndexPage = () => {
     },
   }
 
-  const emojiFavicon = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="1em" font-size="100" font-family="sans-serif">🐔</text></svg>`
-
   return (<Layout>
     <main className="page">
-      <Helmet>
-        <link rel="icon" href={emojiFavicon} />
-      </Helmet>
       <h1 className="heading">
         CoopCast.tv
         <br />
@@ -37,4 +31,14 @@ const IndexPage = () => {
 
 export default IndexPage
 
-export const Head = () => <title>coopcast.tv</title>
+export function Head() {
+
+  const emojiFavicon = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="1em" font-size="100" font-family="sans-serif">🐔</text></svg>`
+
+  return (
+    <>
+      <title>CoopCast.tv</title>
+      <link rel="icon" href={emojiFavicon} />
+    </>
+  )
+}

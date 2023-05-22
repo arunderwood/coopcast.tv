@@ -1,4 +1,5 @@
 import Layout from "../components/layout"
+import ChickenBios from "../components/ChickenBios"
 
 import * as React from "react"
 import YouTube from "react-youtube"
@@ -9,6 +10,15 @@ const IndexPage = () => {
       autoplay: 1,
     },
   }
+
+  const chickens = [
+    { name: "Laya", bio: "Brown" },
+    { name: "Rey", bio: "Brown" },
+    { name: "Yolka", bio: "Brown" },
+    { name: "Whitie", bio: "White" },
+    { name: "Blackie", bio: "Black" },
+    { name: "Oliver", bio: "Olive Egger" },
+  ]
 
   return (<Layout>
     <main className="page">
@@ -24,8 +34,9 @@ const IndexPage = () => {
           className="video"
         />
       </div>
+      <ChickenBios chickens={chickens} />
     </main>
-  </Layout>
+  </Layout >
   )
 }
 

@@ -1,0 +1,17 @@
+.chicken {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px;
+}
+
+.chicken-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.chicken-details {
+    margin-bottom: 5px;
+}

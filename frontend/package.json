@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-private-property-in-object": "^7.24.1",
-    "@microsoft/eslint-formatter-sarif": "^3.0.0",
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "eslint-config-react-app": "^7.0.1"
   },
   "optionalDependencies": {

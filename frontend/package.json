@@ -16,7 +16,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "@mdx-js/react": "^2.3.0",
+    "@mdx-js/react": "^3.1.0",
     "gatsby": "^5.14.0",
     "gatsby-cli": "^5.13.3",
     "gatsby-plugin-manifest": "^5.14.0",

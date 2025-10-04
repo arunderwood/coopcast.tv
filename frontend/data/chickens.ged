@@ -1,0 +1,143 @@
+0 HEAD
+1 SOUR CoopCast
+2 NAME CoopCast Family Tree
+2 VERS 1.0
+1 DEST GEDCOM 5.5.1
+1 DATE 3 OCT 2025
+1 SUBM @SUBMITTER@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+0 @SUBMITTER@ SUBM
+1 NAME CoopCast Keeper
+0 @I1@ INDI
+1 NAME Whitey
+2 GIVN Whitey
+1 SEX M
+1 BIRT
+2 DATE 3 MAY 2023
+1 FAMS @F1@
+1 FAMS @F2@
+0 @I2@ INDI
+1 NAME Yolka
+2 GIVN Yolka
+1 SEX M
+1 BIRT
+2 DATE 3 MAY 2023
+1 DEAT
+2 DATE 2023
+1 NOTE Put down due to aggressive behavior to others.
+0 @I3@ INDI
+1 NAME Laya
+2 GIVN Laya
+1 SEX M
+1 BIRT
+2 DATE 3 MAY 2023
+1 NOTE Rehomed in 2023 due to aggressive behavior.
+0 @I4@ INDI
+1 NAME Blackie
+2 GIVN Blackie
+1 SEX F
+1 BIRT
+2 DATE 3 MAY 2023
+1 DEAT
+2 DATE 2023
+1 NOTE Taken by an eagle.
+0 @I5@ INDI
+1 NAME Oliver
+2 GIVN Oliver
+1 SEX F
+1 BIRT
+2 DATE 3 MAY 2023
+0 @I6@ INDI
+1 NAME Lulu
+2 GIVN Lulu
+1 SEX F
+1 BIRT
+2 DATE 2024
+1 _BREED Blue Cochin
+1 NOTE Has fancy feathered legs. Adopted around 7 months old.
+1 FAMS @F1@
+0 @I7@ INDI
+1 NAME Lemon
+2 GIVN Lemon
+1 SEX F
+1 BIRT
+2 DATE 2024
+1 DEAT
+2 DATE 2024
+1 _BREED Blue Cochin
+1 NOTE Had fancy feathered legs. Adopted around 7 months old. Passed away from sickness.
+0 @I8@ INDI
+1 NAME Larry
+2 GIVN Larry
+1 SEX F
+1 BIRT
+2 DATE SEP 2024
+1 FAMC @F1@
+0 @I9@ INDI
+1 NAME Moe
+2 GIVN Moe
+1 SEX F
+1 BIRT
+2 DATE SEP 2024
+1 FAMC @F1@
+0 @I10@ INDI
+1 NAME Curly
+2 GIVN Curly
+1 SEX M
+1 BIRT
+2 DATE SEP 2024
+1 NOTE Rehomed in late 2024.
+1 FAMC @F1@
+0 @I11@ INDI
+1 NAME Lime
+2 GIVN Lime
+1 SEX U
+1 BIRT
+2 DATE 10 MAY 2025
+1 DEAT
+2 DATE 12 MAY 2025
+1 NOTE Passed away two days after hatching. Mother could be Lulu, Moe, or Oliver. Lulu and Moe took turns incubating.
+1 FAMC @F2@
+0 @I12@ INDI
+1 NAME Kiwi
+2 GIVN Kiwi
+1 SEX F
+1 BIRT
+2 DATE 11 MAY 2025
+1 NOTE Mother could be Lulu, Moe, or Oliver. Lulu and Moe took turns incubating.
+1 FAMC @F2@
+0 @I13@ INDI
+1 NAME Banana
+2 GIVN Banana
+1 SEX F
+1 BIRT
+2 DATE 11 MAY 2025
+1 NOTE Mother could be Lulu, Moe, or Oliver. Lulu and Moe took turns incubating.
+1 FAMC @F2@
+0 @I14@ INDI
+1 NAME Rey
+2 GIVN Rey
+1 SEX M
+1 BIRT
+2 DATE 3 MAY 2023
+1 DEAT
+2 DATE APR 2024
+1 NOTE Died from sickness (and maybe due to being attacked by Whitey).
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I6@
+1 CHIL @I8@
+1 CHIL @I9@
+1 CHIL @I10@
+1 MARR
+2 DATE SEP 2024
+0 @F2@ FAM
+1 HUSB @I1@
+1 CHIL @I11@
+1 CHIL @I12@
+1 CHIL @I13@
+1 NOTE Mother could be Lulu, Moe, or Oliver. Lulu and Moe took turns incubating the eggs.
+0 TRLR

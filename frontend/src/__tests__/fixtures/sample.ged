@@ -1,0 +1,61 @@
+0 HEAD
+1 SOUR TestSource
+2 NAME Test Family Tree
+2 VERS 1.0
+1 DEST GEDCOM 5.5.1
+1 DATE 1 JAN 2025
+1 SUBM @SUBMITTER@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+0 @SUBMITTER@ SUBM
+1 NAME Test Keeper
+0 @I1@ INDI
+1 NAME Henrietta /Featherbottom/
+2 GIVN Henrietta
+2 SURN Featherbottom
+1 SEX F
+1 BIRT
+2 DATE 15 MAR 2020
+1 _BREED Rhode Island Red
+1 NOTE Matriarch of the test flock.
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Duke /Doodle/
+2 GIVN Duke
+2 SURN Doodle
+1 SEX M
+1 BIRT
+2 DATE 1 JAN 2020
+1 NOTE The original rooster of the test flock.
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME Penny /Pecks/
+2 GIVN Penny
+2 SURN Pecks
+1 SEX F
+1 BIRT
+2 DATE 10 JUN 2021
+1 NOTE Very social and friendly.
+1 FAMC @F1@
+0 @I4@ INDI
+1 NAME Nugget /Goldfeather/
+2 GIVN Nugget
+2 SURN Goldfeather
+1 SEX M
+1 BIRT
+2 DATE 5 JUL 2021
+1 DEAT
+2 DATE 15 DEC 2022
+1 NOTE Passed away peacefully.
+1 FAMC @F1@
+0 @F1@ FAM
+1 HUSB @I2@
+1 WIFE @I1@
+1 CHIL @I3@
+1 CHIL @I4@
+1 MARR
+2 DATE MAR 2020
+1 NOTE Test family with two offspring.
+0 TRLR

@@ -93,12 +93,23 @@ npm clean
 - **Layout component** (`src/components/layout.js`): Simple wrapper component with CSS import
 - **Index page** (`src/pages/index.js`): Main page featuring YouTube embed with react-youtube library
   - Uses `YouTube` component with `videoId="PXe3D684sUA"`
+  - **SSR Compatibility**: Dynamically imports react-youtube client-side only to avoid SSR issues
+  - Pattern: `useEffect` + dynamic `import()` to load YouTube player only in browser
   - Includes a custom `Head` export for page metadata and emoji favicon
 - **404 page** (`src/pages/404.js`): Error page
 
 ### Styling
 - CSS is located in `src/components/layout.css`
 - No CSS-in-JS or styled-components; uses traditional CSS imports
+
+### Server-Side Rendering (SSR)
+- **HTML lang attribute**: Set via `gatsby-ssr.js` using `onRenderBody` API
+  - Sets `<html lang="en">` for accessibility compliance
+  - Required for Lighthouse accessibility score
+- **Client-only components**: react-youtube loaded dynamically to avoid SSR issues
+  - Third-party libraries with browser-only APIs must be loaded client-side
+  - Use `useState(false)` + `useEffect(() => setIsClient(true))` pattern
+  - Dynamic import: `import('react-youtube').then(module => setYouTube(() => module.default))`
 
 ### ESLint Configuration
 - Extends `react-app` config

@@ -53,7 +53,7 @@ jobs:
 
               if (cfComment) {
                 // Extract Preview URL (commit-specific, not branch URL)
-                const match = cfComment.body.match(/Preview URL:.*?href='(https:\/\/[a-f0-9]+\.coopcast-tv\.pages\.dev)'/);
+                const match = cfComment.body.match(/href='(https:\/\/[a-f0-9]+\.coopcast-tv\.pages\.dev)'/);
                 if (match) {
                   const previewUrl = match[1];
                   console.log(`Found Cloudflare preview URL: ${previewUrl}`);

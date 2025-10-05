@@ -4,6 +4,18 @@
 
 import React from 'react';
 import { render } from '@testing-library/react';
+
+// Mock Gatsby modules
+jest.mock('gatsby', () => ({
+  Link: ({ to, children }) => <a href={to}>{children}</a>,
+  graphql: jest.fn(),
+  useStaticQuery: jest.fn(),
+}));
+
+jest.mock('gatsby-link', () => ({
+  default: ({ to, children }) => <a href={to}>{children}</a>,
+}));
+
 import { Head as IndexHead } from '../pages/index';
 import { Head as FamilyTreeHead } from '../pages/family-tree';
 

@@ -1,18 +1,20 @@
 /**
  * Tests for Lighthouse CI configuration
- * Validates lighthouserc.json structure and assertions
+ * Validates .lighthouserc.js structure and assertions
  */
 
-const fs = require('fs');
 const path = require('path');
 
 describe('Lighthouse CI Configuration', () => {
   let config;
 
   beforeAll(() => {
-    const configPath = path.join(__dirname, '../../lighthouserc.json');
-    const configContent = fs.readFileSync(configPath, 'utf8');
-    config = JSON.parse(configContent);
+    // Set LHCI_URL for testing
+    process.env.LHCI_URL = 'https://example.com';
+    const configPath = path.join(__dirname, '../../.lighthouserc.js');
+    // Clear require cache to ensure fresh load with env var
+    delete require.cache[require.resolve(configPath)];
+    config = require(configPath);
   });
 
   describe('Structure', () => {
@@ -31,8 +33,8 @@ describe('Lighthouse CI Configuration', () => {
   describe('Collect Configuration', () => {
     it('should use LHCI_URL environment variable for URLs', () => {
       expect(config.ci.collect.url).toBeInstanceOf(Array);
-      expect(config.ci.collect.url).toContain('${LHCI_URL}/'); // eslint-disable-line no-template-curly-in-string
-      expect(config.ci.collect.url).toContain('${LHCI_URL}/family-tree/'); // eslint-disable-line no-template-curly-in-string
+      expect(config.ci.collect.url).toContain('https://example.com/');
+      expect(config.ci.collect.url).toContain('https://example.com/family-tree/');
     });
 
     it('should test both homepage and family-tree page', () => {

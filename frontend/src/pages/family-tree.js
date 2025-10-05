@@ -26,7 +26,7 @@ const FamilyTreePage = ({ data }) => {
 export const Head = () => (
   <>
     <title>Chicken Family Tree - CoopCast.tv</title>
-    <meta name="description" content="Explore the genealogy of CoopCast chickens through an interactive family tree" />
+    <meta name="description" content="Explore the genealogy of CoopCast chickens through an interactive family tree showing generations, breeds, and relationships." />
   </>
 );
 

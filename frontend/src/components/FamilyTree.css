@@ -147,17 +147,17 @@
   }
 
   .family-node-gender {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .family-node-breed,
   .family-node-detail,
   .family-node-death {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .family-node-notes {
-    font-size: 8px;
+    font-size: 12px;
     margin-top: 2px;
     -webkit-line-clamp: 1;
   }

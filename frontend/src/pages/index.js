@@ -1,9 +1,20 @@
 import Layout from "../components/layout"
 
 import * as React from "react"
-import YouTube from "react-youtube"
+import { useState, useEffect } from "react"
 
 const IndexPage = () => {
+  const [isClient, setIsClient] = useState(false)
+  const [YouTube, setYouTube] = useState(null)
+
+  useEffect(() => {
+    setIsClient(true)
+    // Dynamically import react-youtube only on client-side
+    import("react-youtube").then((module) => {
+      setYouTube(() => module.default)
+    })
+  }, [])
+
   const videoOptions = {
     playerVars: {
       autoplay: 1,
@@ -18,11 +29,13 @@ const IndexPage = () => {
         <span className="heading-accent">🐔🐔🐔🐔🐔🐔</span>
       </h1>
       <div className="video-container">
-        <YouTube
-          videoId="PXe3D684sUA"
-          opts={videoOptions}
-          className="video"
-        />
+        {isClient && YouTube && (
+          <YouTube
+            videoId="PXe3D684sUA"
+            opts={videoOptions}
+            className="video"
+          />
+        )}
       </div>
     </main>
   </Layout>
@@ -38,6 +51,7 @@ export function Head() {
   return (
     <>
       <title>CoopCast.tv</title>
+      <meta name="description" content="Watch our live chicken coop stream 24/7. Meet our flock and explore their family tree." />
       <link rel="icon" href={emojiFavicon} />
     </>
   )

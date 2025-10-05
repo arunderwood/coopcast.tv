@@ -142,8 +142,75 @@ Commands delegate to **chicken-genealogist** subagent (`.claude/agents/chicken-g
 GitHub Actions workflows:
 - **ESLint**: Runs on push/PR to main (`workflows/eslint.yml`)
 - **Tests**: Runs Jest tests (`workflows/tests.yml`)
+- **Lighthouse CI**: Mobile usability & performance testing (`workflows/lighthouse.yml`)
 
 Run tests locally: `npm test` from `frontend/`
+
+## Responsive Design Testing
+
+The site uses a **two-tier testing strategy** combining automated and expert UX testing:
+
+### Tier 1: Automated Testing (Lighthouse CI)
+
+Runs automatically on every PR to catch objective issues:
+- ✅ Font sizes < 12px
+- ✅ Missing accessibility attributes (html lang, ARIA)
+- ✅ Performance regressions (LCP, FCP)
+- ✅ SEO compliance (meta descriptions)
+- ✅ Tap target sizes
+
+**Commands:**
+```bash
+cd frontend
+npm run lhci  # Run Lighthouse CI tests locally
+```
+
+**Configuration:** `frontend/lighthouserc.json`
+**CI Workflow:** `.github/workflows/lighthouse.yml`
+
+### Tier 2: UX Testing Subagent (mobile-ux-tester)
+
+Specialized agent for subjective UX issues that Lighthouse misses:
+- ✅ Horizontal scroll detection (Lighthouse missed this!)
+- ✅ Touch interaction quality
+- ✅ Visual layout comfort (cramped vs spacious)
+- ✅ Pan/zoom behavior
+- ✅ Connection line overlaps
+- ✅ SVG rendering quality
+
+**Command:**
+```bash
+/test-mobile-ux [page]     # Test specific page or "all"
+```
+
+**Agent:** `.claude/agents/mobile-ux-tester.md`
+
+### What Each Tool Catches
+
+| Issue Type | Lighthouse CI | UX Tester |
+|------------|---------------|-----------|
+| Font sizes < 12px | ✅ Auto | ❌ |
+| Horizontal scroll | ❌ | ✅ Puppeteer |
+| Missing HTML attributes | ✅ Auto | ❌ |
+| Tap target sizes | ✅ Auto | ✅ Verified |
+| Layout feels cramped | ❌ | ✅ Subjective |
+| Performance metrics | ✅ Auto | ❌ |
+| Touch interaction quality | ❌ | ✅ Manual |
+| SVG rendering | ❌ | ✅ Visual |
+
+### Testing Workflow
+
+**For developers:**
+1. Make responsive changes
+2. Run `npm run lhci` - Fix any failures
+3. Run `/test-mobile-ux all` - Review UX assessment
+4. Push PR - Lighthouse CI runs automatically
+5. Review both reports before merging
+
+**Test viewports:**
+- Mobile: 375px (iPhone SE), 390px (iPhone 12)
+- Tablet: 768px (iPad)
+- Desktop: 1920px
 
 ## Important Notes
 

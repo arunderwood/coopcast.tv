@@ -1,3 +1,9 @@
 node_modules/
 .cache/
 public
+
+# Lighthouse CI
+.lighthouseci/
+
+# UX testing screenshots
+test-results/

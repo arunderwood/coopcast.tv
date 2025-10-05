@@ -74,7 +74,7 @@ jobs:
             comment += '|-----|-------------|---------------|----------------|-----|\n';
 
             for (const entry of manifest) {
-              const lhr = JSON.parse(fs.readFileSync(path.join(lhciDir, entry.jsonPath), 'utf8'));
+              const lhr = JSON.parse(fs.readFileSync(entry.jsonPath, 'utf8'));
               const url = new URL(lhr.finalUrl).pathname || '/';
               const cats = lhr.categories;
 
@@ -91,7 +91,7 @@ jobs:
 
             comment += '\n**Key Mobile Usability Checks:**\n';
             comment += manifest.map(entry => {
-              const lhr = JSON.parse(fs.readFileSync(path.join(lhciDir, entry.jsonPath), 'utf8'));
+              const lhr = JSON.parse(fs.readFileSync(entry.jsonPath, 'utf8'));
               const url = new URL(lhr.finalUrl).pathname || '/';
               const audits = lhr.audits;
 

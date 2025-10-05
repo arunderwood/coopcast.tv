@@ -38,6 +38,7 @@
     "@babel/plugin-transform-private-property-in-object": "^7.27.1",
     "@babel/preset-env": "^7.28.3",
     "@babel/preset-react": "^7.27.1",
+    "@lhci/cli": "^0.14.0",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",

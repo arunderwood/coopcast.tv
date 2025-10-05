@@ -146,6 +146,32 @@ GitHub Actions workflows:
 
 Run tests locally: `npm test` from `frontend/`
 
+### Testing GitHub Actions Workflows Locally
+
+Use [act](https://github.com/nektos/act) to test workflow changes locally before pushing:
+
+```bash
+# Install act (macOS)
+brew install act
+
+# Test specific workflow
+act -W .github/workflows/lighthouse.yml
+
+# Test pull_request event
+act pull_request -W .github/workflows/lighthouse.yml
+
+# Test all workflows triggered by push
+act push
+```
+
+**Important for act usage:**
+- Requires Docker to be running
+- Uses `-W` flag to specify workflow file
+- May need `--container-architecture linux/amd64` on ARM Macs
+- Some GitHub-hosted features may not work identically (e.g., artifact uploads)
+
+This is especially useful for testing Lighthouse CI configuration changes without creating actual PRs.
+
 ## Responsive Design Testing
 
 The site uses a **two-tier testing strategy** combining automated and expert UX testing:

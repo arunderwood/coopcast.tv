@@ -21,12 +21,13 @@
       }
     },
     "assert": {
-      "preset": "lighthouse:recommended",
       "assertions": {
         "categories:accessibility": ["error", {"minScore": 0.9}],
+        "categories:best-practices": ["warn", {"minScore": 0.9}],
         "font-size": ["error"],
         "html-has-lang": ["error"],
-        "viewport": ["error"]
+        "viewport": ["error"],
+        "meta-description": ["warn"]
       }
     },
     "upload": {

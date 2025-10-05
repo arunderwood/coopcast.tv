@@ -18,7 +18,8 @@
           "uploadThroughputKbps": 675,
           "cpuSlowdownMultiplier": 4
         }
-      }
+      },
+      "outputDir": ".lighthouseci"
     },
     "assert": {
       "assertions": {

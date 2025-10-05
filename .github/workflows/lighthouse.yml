@@ -70,10 +70,10 @@ jobs:
 
       - name: Run Lighthouse CI
         working-directory: ./frontend
-        run: npm run lhci
+        run: |
+          LHCI_URL="${{ steps.cloudflare.outputs.url }}" npm run lhci
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PREVIEW_URL: ${{ steps.cloudflare.outputs.url }}
 
       - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v4

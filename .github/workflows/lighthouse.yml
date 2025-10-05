@@ -1,0 +1,194 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+jobs:
+  lighthouse:
+    name: Lighthouse Mobile Testing
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Determine test URL
+        id: url
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "url=https://coopcast.tv" >> $GITHUB_OUTPUT
+            echo "Testing production site: https://coopcast.tv"
+          else
+            echo "url=preview" >> $GITHUB_OUTPUT
+            echo "Will wait for Cloudflare preview deployment"
+          fi
+
+      - name: Wait for Cloudflare deployment
+        uses: actions/github-script@v7
+        id: cloudflare
+        if: steps.url.outputs.url == 'preview'
+        with:
+          script: |
+            const maxAttempts = 30; // 5 minutes max
+            const delay = 10000; // 10 seconds
+
+            console.log('Waiting for Cloudflare Pages deployment...');
+
+            for (let i = 0; i < maxAttempts; i++) {
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number
+              });
+
+              const cfComment = comments.data.find(c =>
+                c.user.login === 'cloudflare-workers-and-pages[bot]' &&
+                c.body.includes('Deploy successful!')
+              );
+
+              if (cfComment) {
+                // Extract Preview URL (commit-specific, not branch URL)
+                const match = cfComment.body.match(/href='(https:\/\/[a-f0-9]+\.coopcast-tv\.pages\.dev)'/);
+                if (match) {
+                  const previewUrl = match[1];
+                  console.log(`Found Cloudflare preview URL: ${previewUrl}`);
+                  core.setOutput('url', previewUrl);
+                  return previewUrl;
+                }
+              }
+
+              console.log(`Attempt ${i + 1}/${maxAttempts}: Deployment not ready yet...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+            }
+
+            throw new Error('Cloudflare deployment timeout after 5 minutes');
+
+      - name: Run Lighthouse CI
+        working-directory: ./frontend
+        run: |
+          if [ "${{ steps.url.outputs.url }}" = "preview" ]; then
+            LHCI_URL="${{ steps.cloudflare.outputs.url }}" npm run lhci
+          else
+            LHCI_URL="${{ steps.url.outputs.url }}" npm run lhci
+          fi
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: |
+            frontend/.lighthouseci/*.json
+          retention-days: 30
+
+      - name: Add PR comment with results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request' && always()
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Find the manifest file
+            const lhciDir = 'frontend/.lighthouseci';
+            const manifestPath = path.join(lhciDir, 'manifest.json');
+
+            if (!fs.existsSync(manifestPath)) {
+              console.log('No manifest.json found, skipping comment');
+              return;
+            }
+
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+
+            // Build comment body
+            let comment = '## 📱 Lighthouse CI Mobile Report\n\n';
+            comment += '| URL | Performance | Accessibility | Best Practices | SEO |\n';
+            comment += '|-----|-------------|---------------|----------------|-----|\n';
+
+            for (const entry of manifest) {
+              const lhr = JSON.parse(fs.readFileSync(entry.jsonPath, 'utf8'));
+              const url = new URL(lhr.finalUrl).pathname || '/';
+              const cats = lhr.categories;
+
+              const formatScore = (score) => {
+                if (!score) return 'N/A';
+                const pct = Math.round(score * 100);
+                if (pct >= 90) return `🟢 ${pct}`;
+                if (pct >= 50) return `🟡 ${pct}`;
+                return `🔴 ${pct}`;
+              };
+
+              comment += `| ${url} | ${formatScore(cats.performance?.score)} | ${formatScore(cats.accessibility?.score)} | ${formatScore(cats['best-practices']?.score)} | ${formatScore(cats.seo?.score)} |\n`;
+            }
+
+            comment += '\n**Key Mobile Usability Checks:**\n';
+            comment += manifest.map(entry => {
+              const lhr = JSON.parse(fs.readFileSync(entry.jsonPath, 'utf8'));
+              const url = new URL(lhr.finalUrl).pathname || '/';
+              const audits = lhr.audits;
+
+              const checks = [
+                { name: 'Font Size', key: 'font-size', pass: audits['font-size']?.score === 1 },
+                { name: 'Tap Targets', key: 'tap-targets', pass: audits['tap-targets']?.score === 1 },
+                { name: 'Viewport', key: 'viewport', pass: audits.viewport?.score === 1 }
+              ];
+
+              return `\n**${url}:**\n` + checks.map(c =>
+                `- ${c.pass ? '✅' : '❌'} ${c.name}`
+              ).join('\n');
+            }).join('\n');
+
+            // Add deployment URL info
+            const firstLhr = JSON.parse(fs.readFileSync(manifest[0].jsonPath, 'utf8'));
+            const deploymentUrl = new URL(firstLhr.finalUrl).origin;
+            const isProd = deploymentUrl === 'https://coopcast.tv';
+            const urlLabel = isProd ? 'production' : 'Cloudflare Pages preview';
+            comment += `\n\n**Tested against:** ${deploymentUrl} (${urlLabel})\n`;
+            comment += `[View full reports in artifacts](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`;
+
+            // Post comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('Lighthouse CI Mobile Report')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }

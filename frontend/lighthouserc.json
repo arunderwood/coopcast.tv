@@ -1,0 +1,37 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "${LHCI_URL}",
+        "${LHCI_URL}/family-tree"
+      ],
+      "numberOfRuns": 1,
+      "settings": {
+        "emulatedFormFactor": "mobile",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 0,
+          "downloadThroughputKbps": 1638.4,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "outputDir": ".lighthouseci"
+    },
+    "assert": {
+      "assertions": {
+        "categories:accessibility": ["error", {"minScore": 0.9}],
+        "categories:best-practices": ["warn", {"minScore": 0.9}],
+        "font-size": ["error"],
+        "html-has-lang": ["error"],
+        "viewport": ["error"],
+        "meta-description": ["warn"]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "githubStatusContextSuffix": "/mobile"
+    }
+  }
+}

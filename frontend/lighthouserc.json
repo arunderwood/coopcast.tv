@@ -2,8 +2,8 @@
   "ci": {
     "collect": {
       "url": [
-        "${PREVIEW_URL}",
-        "${PREVIEW_URL}/family-tree"
+        "%PREVIEW_URL%",
+        "%PREVIEW_URL%/family-tree"
       ],
       "numberOfRuns": 1,
       "settings": {

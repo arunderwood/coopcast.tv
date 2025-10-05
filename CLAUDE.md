@@ -194,6 +194,12 @@ npm run lhci  # Run Lighthouse CI tests locally
 **Configuration:** `frontend/lighthouserc.json`
 **CI Workflow:** `.github/workflows/lighthouse.yml`
 
+**PR Decoration:**
+- 📊 **Automatic PR comment** with score table and key mobile usability checks
+- ✅ **GitHub status checks** for each URL tested (e.g., "lhci/url/mobile")
+- 📁 **Artifacts** with full JSON reports (30-day retention)
+- 🔗 **Public report links** in temporary storage
+
 ### Tier 2: UX Testing Subagent (mobile-ux-tester)
 
 Specialized agent for subjective UX issues that Lighthouse misses:

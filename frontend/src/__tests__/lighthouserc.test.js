@@ -31,8 +31,8 @@ describe('Lighthouse CI Configuration', () => {
   describe('Collect Configuration', () => {
     it('should use LHCI_URL environment variable for URLs', () => {
       expect(config.ci.collect.url).toBeInstanceOf(Array);
-      expect(config.ci.collect.url).toContain('${LHCI_URL}');
-      expect(config.ci.collect.url).toContain('${LHCI_URL}/family-tree');
+      expect(config.ci.collect.url).toContain('${LHCI_URL}'); // eslint-disable-line no-template-curly-in-string
+      expect(config.ci.collect.url).toContain('${LHCI_URL}/family-tree'); // eslint-disable-line no-template-curly-in-string
     });
 
     it('should test both homepage and family-tree page', () => {

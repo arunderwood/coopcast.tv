@@ -125,12 +125,25 @@
   -webkit-box-orient: vertical;
 }
 
+/* Tablet responsiveness (iPad) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .family-node-breed,
+  .family-node-detail,
+  .family-node-death {
+    font-size: 11px;
+  }
+
+  .family-node-notes {
+    font-size: 10px;
+  }
+}
+
 /* Mobile responsiveness */
 @media (max-width: 767px) {
   .family-tree-wrapper {
     min-height: 500px;
     border-radius: 4px;
-    padding: 20px;
+    padding: 8px;
   }
 
   .family-tree-svg {

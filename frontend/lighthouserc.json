@@ -1,13 +1,11 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "npm run serve",
       "url": [
-        "http://localhost:9000",
-        "http://localhost:9000/family-tree"
+        "${PREVIEW_URL}",
+        "${PREVIEW_URL}/family-tree"
       ],
       "numberOfRuns": 1,
-      "startServerReadyPattern": "You can now view",
       "settings": {
         "emulatedFormFactor": "mobile",
         "throttling": {

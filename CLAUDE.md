@@ -178,27 +178,27 @@ The site uses a **two-tier testing strategy** combining automated and expert UX 
 
 ### Tier 1: Automated Testing (Lighthouse CI)
 
-Runs automatically on every PR to catch objective issues:
+Runs automatically on every PR against Cloudflare Pages preview deployments:
 - ✅ Font sizes < 12px
 - ✅ Missing accessibility attributes (html lang, ARIA)
 - ✅ Performance regressions (LCP, FCP)
 - ✅ SEO compliance (meta descriptions)
 - ✅ Tap target sizes
 
-**Commands:**
-```bash
-cd frontend
-npm run lhci  # Run Lighthouse CI tests locally
-```
+**Test Environment:**
+- Tests **Cloudflare Pages preview deployment** (commit-specific URL)
+- Real CDN performance with edge caching, HTTP/2, Brotli compression
+- Waits for Cloudflare deployment to complete, then extracts preview URL
+- More accurate scores than localhost testing
 
 **Configuration:** `frontend/lighthouserc.json`
 **CI Workflow:** `.github/workflows/lighthouse.yml`
 
 **PR Decoration:**
-- 📊 **Automatic PR comment** with score table and key mobile usability checks
+- 📊 **Automatic PR comment** with score table and tested deployment URL
 - ✅ **GitHub status checks** for each URL tested (e.g., "lhci/url/mobile")
 - 📁 **Artifacts** with full JSON reports (30-day retention)
-- 🔗 **Public report links** in temporary storage
+- 🌐 **Shows Cloudflare preview URL** that was tested
 
 ### Tier 2: UX Testing Subagent (mobile-ux-tester)
 

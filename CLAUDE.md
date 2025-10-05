@@ -178,7 +178,7 @@ The site uses a **two-tier testing strategy** combining automated and expert UX 
 
 ### Tier 1: Automated Testing (Lighthouse CI)
 
-Runs automatically on every PR against Cloudflare Pages preview deployments:
+Runs automatically on PRs and pushes to main:
 - ✅ Font sizes < 12px
 - ✅ Missing accessibility attributes (html lang, ARIA)
 - ✅ Performance regressions (LCP, FCP)
@@ -186,10 +186,11 @@ Runs automatically on every PR against Cloudflare Pages preview deployments:
 - ✅ Tap target sizes
 
 **Test Environment:**
-- Tests **Cloudflare Pages preview deployment** (commit-specific URL)
-- Real CDN performance with edge caching, HTTP/2, Brotli compression
-- Waits for Cloudflare deployment to complete, then extracts preview URL
-- More accurate scores than localhost testing
+- **PRs**: Tests Cloudflare Pages preview deployment (commit-specific URL)
+  - Waits for Cloudflare deployment, extracts preview URL
+  - Real CDN performance with edge caching, HTTP/2, Brotli compression
+- **Main branch**: Tests production site at https://coopcast.tv
+  - Validates live site performance after deployment
 
 **Configuration:** `frontend/lighthouserc.json`
 **CI Workflow:** `.github/workflows/lighthouse.yml`
@@ -198,7 +199,7 @@ Runs automatically on every PR against Cloudflare Pages preview deployments:
 - 📊 **Automatic PR comment** with score table and tested deployment URL
 - ✅ **GitHub status checks** for each URL tested (e.g., "lhci/url/mobile")
 - 📁 **Artifacts** with full JSON reports (30-day retention)
-- 🌐 **Shows Cloudflare preview URL** that was tested
+- 🌐 **Shows which URL was tested** (preview or production)
 
 ### Tier 2: UX Testing Subagent (mobile-ux-tester)
 

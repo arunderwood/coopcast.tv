@@ -3,6 +3,8 @@ name: Lighthouse CI
 on:
   pull_request:
     branches: [ "main" ]
+  push:
+    branches: [ "main" ]
 
 jobs:
   lighthouse:
@@ -28,10 +30,21 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
+      - name: Determine test URL
+        id: url
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "url=https://coopcast.tv" >> $GITHUB_OUTPUT
+            echo "Testing production site: https://coopcast.tv"
+          else
+            echo "url=preview" >> $GITHUB_OUTPUT
+            echo "Will wait for Cloudflare preview deployment"
+          fi
+
       - name: Wait for Cloudflare deployment
         uses: actions/github-script@v7
         id: cloudflare
-        if: github.event_name == 'pull_request'
+        if: steps.url.outputs.url == 'preview'
         with:
           script: |
             const maxAttempts = 30; // 5 minutes max
@@ -71,7 +84,11 @@ jobs:
       - name: Run Lighthouse CI
         working-directory: ./frontend
         run: |
-          LHCI_URL="${{ steps.cloudflare.outputs.url }}" npm run lhci
+          if [ "${{ steps.url.outputs.url }}" = "preview" ]; then
+            LHCI_URL="${{ steps.cloudflare.outputs.url }}" npm run lhci
+          else
+            LHCI_URL="${{ steps.url.outputs.url }}" npm run lhci
+          fi
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -144,7 +161,9 @@ jobs:
             // Add deployment URL info
             const firstLhr = JSON.parse(fs.readFileSync(manifest[0].jsonPath, 'utf8'));
             const deploymentUrl = new URL(firstLhr.finalUrl).origin;
-            comment += `\n\n**Tested against:** ${deploymentUrl} (Cloudflare Pages preview)\n`;
+            const isProd = deploymentUrl === 'https://coopcast.tv';
+            const urlLabel = isProd ? 'production' : 'Cloudflare Pages preview';
+            comment += `\n\n**Tested against:** ${deploymentUrl} (${urlLabel})\n`;
             comment += `[View full reports in artifacts](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`;
 
             // Post comment

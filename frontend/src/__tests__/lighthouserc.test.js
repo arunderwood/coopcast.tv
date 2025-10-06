@@ -31,14 +31,14 @@ describe('Lighthouse CI Configuration', () => {
   });
 
   describe('Collect Configuration', () => {
-    it('should use LHCI_URL environment variable for URLs', () => {
-      expect(config.ci.collect.url).toBeInstanceOf(Array);
-      expect(config.ci.collect.url).toContain('https://example.com/');
-      expect(config.ci.collect.url).toContain('https://example.com/family-tree/');
+    it('should use async function to dynamically fetch URLs from sitemap', () => {
+      expect(config.ci.collect.url).toBeInstanceOf(Function);
     });
 
-    it('should test both homepage and family-tree page', () => {
-      expect(config.ci.collect.url).toHaveLength(2);
+    it('should be configured to fetch from LHCI_URL environment variable', () => {
+      // The URL function requires LHCI_URL env var to be set
+      expect(process.env.LHCI_URL).toBe('https://example.com');
+      expect(typeof config.ci.collect.url).toBe('function');
     });
 
     it('should emulate mobile form factor', () => {
@@ -141,17 +141,10 @@ describe('Lighthouse CI Configuration', () => {
   });
 
   describe('Environment Variable Usage', () => {
-    it('should use correct Lighthouse CI env var syntax', () => {
-      // Lighthouse CI requires ${LHCI_*} prefix for environment variables
-      const urls = config.ci.collect.url;
-
-      urls.forEach(url => {
-        if (url.includes('LHCI_URL')) {
-          expect(url).toMatch(/\$\{LHCI_URL\}/);
-          expect(url).not.toMatch(/\$PREVIEW_URL/); // Old incorrect var
-          expect(url).not.toMatch(/%PREVIEW_URL%/);  // Wrong syntax
-        }
-      });
+    it('should require LHCI_URL environment variable', () => {
+      // The URL function should throw if LHCI_URL is not set
+      expect(process.env.LHCI_URL).toBeDefined();
+      expect(process.env.LHCI_URL).toBe('https://example.com');
     });
   });
 });

@@ -3,37 +3,24 @@ import { linkVertical } from 'd3-shape';
 import './FamilyTree.css';
 
 /**
- * Parse date string to comparable format
- * Handles formats: "3 MAY 2023", "SEP 2024", "2024", "10 MAY 2025"
+ * Format GEDCOM date to American format using browser's date formatting
  */
-function parseChickenDate(dateStr) {
-  if (!dateStr) return null;
-
-  const monthMap = {
-    'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
-    'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
-    'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
-  };
-
+function formatDate(dateStr) {
+  if (!dateStr) return '';
   const parts = dateStr.trim().split(' ');
 
-  if (parts.length === 3) {
-    // "3 MAY 2023" or "10 MAY 2025"
-    const day = parts[0].padStart(2, '0');
-    const month = monthMap[parts[1]] || '01';
-    const year = parts[2];
-    return `${year}-${month}-${day}`;
-  } else if (parts.length === 2) {
-    // "SEP 2024"
-    const month = monthMap[parts[0]] || '01';
-    const year = parts[1];
-    return `${year}-${month}-01`;
-  } else if (parts.length === 1) {
-    // "2024"
-    return `${parts[0]}-01-01`;
+  if (parts.length === 1) return parts[0]; // Year only
+
+  const date = new Date(dateStr);
+  if (isNaN(date)) return dateStr;
+
+  if (parts.length === 2) {
+    // Month and year only
+    return date.toLocaleDateString('en-US', { month: 'numeric', year: 'numeric' });
   }
 
-  return dateStr;
+  // Full date
+  return date.toLocaleDateString('en-US');
 }
 
 /**
@@ -41,20 +28,20 @@ function parseChickenDate(dateStr) {
  */
 function groupByBirthCohort(chickens) {
   const sorted = [...chickens].sort((a, b) => {
-    const dateA = parseChickenDate(a.birthDate) || '9999';
-    const dateB = parseChickenDate(b.birthDate) || '9999';
-    return dateA.localeCompare(dateB);
+    const dateA = a.birthDate ? new Date(a.birthDate).getTime() : Infinity;
+    const dateB = b.birthDate ? new Date(b.birthDate).getTime() : Infinity;
+    return dateA - dateB;
   });
 
   const cohorts = [];
   let currentCohort = null;
 
   sorted.forEach(chicken => {
-    const parsedDate = parseChickenDate(chicken.birthDate);
+    const dateKey = chicken.birthDate || 'Unknown';
 
-    if (!currentCohort || currentCohort.dateKey !== parsedDate) {
+    if (!currentCohort || currentCohort.dateKey !== dateKey) {
       currentCohort = {
-        dateKey: parsedDate,
+        dateKey: dateKey,
         displayDate: chicken.birthDate || 'Unknown',
         chickens: []
       };
@@ -164,27 +151,58 @@ function buildRelationshipMap(families, chickens) {
     }
   });
 
-  // Calculate generation levels using birth year cohorts and family relationships
+  // Calculate generation levels using birth cohorts (30-day windows) and family relationships
   const generations = new Map();
   const queue = [];
 
-  // Group chickens without parents by birth year
-  const foundersByYear = new Map();
+  // Group chickens without parents by birth cohort (30-day windows)
+  const foundersByCohort = new Map();
   chickens.forEach(chicken => {
     if (!relationships.parents.has(chicken.id) || relationships.parents.get(chicken.id).length === 0) {
-      // Extract year from birth date
-      const birthYear = chicken.birthDate ? parseInt(chicken.birthDate.match(/\d{4}/)?.[0] || '0') : 0;
-      if (!foundersByYear.has(birthYear)) {
-        foundersByYear.set(birthYear, []);
+      if (chicken.birthDate) {
+        // Use birth date string as initial cohort key
+        const cohortKey = chicken.birthDate;
+        if (!foundersByCohort.has(cohortKey)) {
+          foundersByCohort.set(cohortKey, []);
+        }
+        foundersByCohort.get(cohortKey).push(chicken.id);
       }
-      foundersByYear.get(birthYear).push(chicken.id);
     }
   });
 
-  // Assign generation 0 to earliest birth year, then increment for each subsequent year
-  const sortedYears = Array.from(foundersByYear.keys()).sort((a, b) => a - b);
-  sortedYears.forEach((year, index) => {
-    foundersByYear.get(year).forEach(chickenId => {
+  // Merge cohorts within 30 days of each other
+  const sortedDates = Array.from(foundersByCohort.keys()).sort((a, b) =>
+    new Date(a).getTime() - new Date(b).getTime()
+  );
+  const mergedCohorts = [];
+  let currentCohort = null;
+
+  sortedDates.forEach(dateKey => {
+    if (!currentCohort) {
+      currentCohort = { startDate: dateKey, chickens: [...foundersByCohort.get(dateKey)] };
+    } else {
+      // Calculate day difference
+      const currentDate = new Date(dateKey);
+      const cohortStart = new Date(currentCohort.startDate);
+      const daysDiff = Math.floor((currentDate - cohortStart) / (1000 * 60 * 60 * 24));
+
+      if (daysDiff <= 30) {
+        // Within 30 days - merge into current cohort
+        currentCohort.chickens.push(...foundersByCohort.get(dateKey));
+      } else {
+        // Start new cohort
+        mergedCohorts.push(currentCohort);
+        currentCohort = { startDate: dateKey, chickens: [...foundersByCohort.get(dateKey)] };
+      }
+    }
+  });
+  if (currentCohort) {
+    mergedCohorts.push(currentCohort);
+  }
+
+  // Assign generation numbers to cohorts
+  mergedCohorts.forEach((cohort, index) => {
+    cohort.chickens.forEach(chickenId => {
       generations.set(chickenId, index);
       queue.push({ id: chickenId, generation: index });
     });
@@ -335,8 +353,8 @@ function generateConnectionPath(source, target, type, metadata = {}) {
 const FamilyNode = ({ chicken, style, generation }) => {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  // Get generation-based border color
-  const genLevel = generation !== undefined ? Math.min(generation, 4) : 0;
+  // Get generation-based border color (cycle through colors if > 4 generations)
+  const genLevel = generation !== undefined ? generation % 5 : 0;
   const borderColor = chicken.isDeceased
     ? GENERATION_COLORS[genLevel].deceased
     : GENERATION_COLORS[genLevel].living;
@@ -352,20 +370,16 @@ const FamilyNode = ({ chicken, style, generation }) => {
   else if (chicken.gender === 'U') genderText = 'Unknown';
 
   const deceased = chicken.isDeceased ? '🪦' : '';
-  const deathInfo = chicken.deathDate ? ` (${chicken.deathDate})` : '';
+  const deathInfo = chicken.deathDate ? ` (${formatDate(chicken.deathDate)})` : '';
 
   // Breed display
   const breedDisplay = chicken.breed ? `🏆 ${chicken.breed}` : '';
 
-  // Notes with truncation
+  // Notes display
   let notesDisplay = '';
   if (chicken.notes && chicken.notes.length > 0) {
     const notesText = chicken.notes.join('; ');
-    const maxNoteLength = isMobile ? 40 : 80;
-    const truncatedNotes = notesText.length > maxNoteLength
-      ? notesText.substring(0, maxNoteLength) + '...'
-      : notesText;
-    notesDisplay = `📝 ${truncatedNotes}`;
+    notesDisplay = `📝 ${notesText}`;
   }
 
   return (
@@ -385,7 +399,7 @@ const FamilyNode = ({ chicken, style, generation }) => {
         )}
         {chicken.birthDate && (
           <div className="family-node-detail">
-            {isMobile ? '🎂 ' : '🎂 Born: '}{chicken.birthDate}
+            {isMobile ? '🎂 ' : '🎂 Born: '}{formatDate(chicken.birthDate)}
           </div>
         )}
         {chicken.isDeceased && (

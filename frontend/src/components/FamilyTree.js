@@ -256,7 +256,6 @@ function calculateChickenPositions(cohorts, nodeWidth, nodeHeight, relationships
         return sum + (item.type === 'couple' ? 2 : 1);
       }, 0);
 
-      const totalWidth = (totalUnits * horizontalSpacing) - (horizontalSpacing - nodeWidth);
       const startX = 40; // Let SVG scale naturally for all viewport sizes
 
       let currentX = startX;

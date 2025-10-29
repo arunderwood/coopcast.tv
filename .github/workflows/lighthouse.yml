@@ -92,25 +92,6 @@ jobs:
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Debug - List Lighthouse files (from frontend dir)
-        if: always()
-        working-directory: ./frontend
-        run: |
-          echo "Listing .lighthouseci directory from frontend/:"
-          ls -la .lighthouseci/ || echo "Directory not found"
-          echo "Files in .lighthouseci:"
-          find .lighthouseci -type f || echo "No files found"
-
-      - name: Debug - List Lighthouse files (from repo root)
-        if: always()
-        run: |
-          echo "Listing from repo root:"
-          ls -la frontend/.lighthouseci/ || echo "Directory not found"
-          echo "Files in frontend/.lighthouseci/:"
-          find frontend/.lighthouseci -type f 2>/dev/null || echo "No files found"
-          echo "Glob pattern test:"
-          ls frontend/.lighthouseci/**/* 2>/dev/null || echo "Glob pattern failed"
-
       - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v5
         if: always()

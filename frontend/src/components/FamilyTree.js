@@ -252,10 +252,6 @@ function calculateChickenPositions(cohorts, nodeWidth, nodeHeight, relationships
 
     // Calculate positions for this cohort
     rows.forEach(row => {
-      const totalUnits = row.reduce((sum, item) => {
-        return sum + (item.type === 'couple' ? 2 : 1);
-      }, 0);
-
       const startX = 40; // Let SVG scale naturally for all viewport sizes
 
       let currentX = startX;

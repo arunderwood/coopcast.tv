@@ -1,0 +1,28 @@
+# Codecov configuration for CoopCast.tv
+# https://docs.codecov.com/docs/codecov-yaml
+
+# Coverage target and reporting settings
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+        threshold: 1%
+
+# Ignore patterns
+ignore:
+  - "frontend/public/**/*"
+  - "frontend/.cache/**/*"
+  - "frontend/gatsby-*.js"
+  - "**/*.test.js"
+  - "**/__tests__/**"
+
+# Comment on PRs with coverage information
+comment:
+  layout: "condensed_header, condensed_files"
+  behavior: default
+  require_changes: false

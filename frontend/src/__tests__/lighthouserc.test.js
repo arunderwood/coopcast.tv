@@ -31,12 +31,20 @@ describe('Lighthouse CI Configuration', () => {
   describe('Collect Configuration', () => {
     it('should use LHCI_URL environment variable for URLs', () => {
       expect(config.ci.collect.url).toBeInstanceOf(Array);
-      expect(config.ci.collect.url).toContain('${LHCI_URL}'); // eslint-disable-line no-template-curly-in-string
-      expect(config.ci.collect.url).toContain('${LHCI_URL}/family-tree'); // eslint-disable-line no-template-curly-in-string
+      expect(config.ci.collect.url).toHaveLength(2);
+
+      // Check that URLs use LHCI_URL placeholder (avoiding template literal syntax)
+      expect(config.ci.collect.url[0]).toMatch(/^\$\{LHCI_URL\}$/);
+      expect(config.ci.collect.url[1]).toMatch(/^\$\{LHCI_URL\}\/family-tree$/);
     });
 
     it('should test both homepage and family-tree page', () => {
-      expect(config.ci.collect.url).toHaveLength(2);
+      // Verify one URL is for homepage, one is for family-tree
+      const hasHomepage = config.ci.collect.url.some(url => url.match(/^\$\{LHCI_URL\}$/));
+      const hasFamilyTree = config.ci.collect.url.some(url => url.includes('/family-tree'));
+
+      expect(hasHomepage).toBe(true);
+      expect(hasFamilyTree).toBe(true);
     });
 
     it('should emulate mobile form factor', () => {

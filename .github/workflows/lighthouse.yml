@@ -97,9 +97,9 @@ jobs:
         if: always()
         with:
           name: lighthouse-reports
-          path: |
-            frontend/.lighthouseci/*.json
+          path: frontend/.lighthouseci/
           retention-days: 30
+          if-no-files-found: warn
 
       - name: Add PR comment with results
         uses: actions/github-script@v8

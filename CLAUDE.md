@@ -58,6 +58,15 @@ coopcast.tv/
 
 ## Development Commands
 
+### Prerequisites
+
+**Node.js Version:** Node.js 22.x (LTS) is required
+- Managed via `.tool-versions` file in `frontend/` directory
+- Install with: `asdf install` (from `frontend/` directory)
+- Verify with: `node --version` (should show v22.x.x)
+
+### Commands
+
 All commands must be run from the `frontend/` directory:
 
 ```bash

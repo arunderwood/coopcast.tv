@@ -55,5 +55,8 @@
   },
   "optionalDependencies": {
     "@parcel/watcher-linux-x64-glibc": "^2.5.1"
+  },
+  "overrides": {
+    "ajv-keywords": "3.5.2"
   }
 }

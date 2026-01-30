@@ -1,5 +1,9 @@
 /**
  * Tests for SEO meta descriptions in page Head exports
+ *
+ * React 19 automatically hoists <meta>, <title>, and <link> elements
+ * to document.head during client-side rendering, so we query
+ * document.head directly after rendering.
  */
 
 import React from 'react';
@@ -14,22 +18,35 @@ jest.mock('gatsby', () => ({
   useStaticQuery: jest.fn(),
 }));
 
-jest.mock('gatsby-link', () => ({
-  default: ({ to, children }) => <a href={to}>{children}</a>,
-}));
+/**
+ * Render a Gatsby Head component and return a query helper
+ * that searches document.head (where React 19 hoists metadata elements).
+ */
+function renderHead(Component) {
+  const result = render(<Component />);
+  return {
+    ...result,
+    queryMeta: (selector) => document.head.querySelector(selector),
+  };
+}
+
+afterEach(() => {
+  // Clean up metadata elements React 19 hoisted to document.head
+  document.head.querySelectorAll('meta[name="description"], title, link[rel="icon"]').forEach(el => el.remove());
+});
 
 describe('Meta Descriptions', () => {
   describe('Homepage (index.js)', () => {
     it('should have a meta description', () => {
-      const { container } = render(<IndexHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(IndexHead);
+      const metaDescription = queryMeta('meta[name="description"]');
 
       expect(metaDescription).toBeInTheDocument();
     });
 
     it('should have description between 50-160 characters (SEO best practice)', () => {
-      const { container } = render(<IndexHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(IndexHead);
+      const metaDescription = queryMeta('meta[name="description"]');
       const content = metaDescription?.getAttribute('content') || '';
 
       expect(content.length).toBeGreaterThanOrEqual(50);
@@ -37,16 +54,16 @@ describe('Meta Descriptions', () => {
     });
 
     it('should describe the chicken coop live stream', () => {
-      const { container } = render(<IndexHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(IndexHead);
+      const metaDescription = queryMeta('meta[name="description"]');
       const content = metaDescription?.getAttribute('content') || '';
 
       expect(content.toLowerCase()).toMatch(/chicken|coop|stream|live/);
     });
 
     it('should have expected meta description content', () => {
-      const { container } = render(<IndexHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(IndexHead);
+      const metaDescription = queryMeta('meta[name="description"]');
 
       expect(metaDescription?.getAttribute('content')).toBe(
         "Watch our live chicken coop stream 24/7. Meet our flock and explore their family tree."
@@ -56,15 +73,15 @@ describe('Meta Descriptions', () => {
 
   describe('Family Tree Page (family-tree.js)', () => {
     it('should have a meta description', () => {
-      const { container } = render(<FamilyTreeHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(FamilyTreeHead);
+      const metaDescription = queryMeta('meta[name="description"]');
 
       expect(metaDescription).toBeInTheDocument();
     });
 
     it('should have description between 50-160 characters (SEO best practice)', () => {
-      const { container } = render(<FamilyTreeHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(FamilyTreeHead);
+      const metaDescription = queryMeta('meta[name="description"]');
       const content = metaDescription?.getAttribute('content') || '';
 
       expect(content.length).toBeGreaterThanOrEqual(50);
@@ -72,16 +89,16 @@ describe('Meta Descriptions', () => {
     });
 
     it('should describe the genealogy and family tree', () => {
-      const { container } = render(<FamilyTreeHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(FamilyTreeHead);
+      const metaDescription = queryMeta('meta[name="description"]');
       const content = metaDescription?.getAttribute('content') || '';
 
       expect(content.toLowerCase()).toMatch(/genealogy|family tree|chicken/);
     });
 
     it('should have expected meta description content', () => {
-      const { container } = render(<FamilyTreeHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(FamilyTreeHead);
+      const metaDescription = queryMeta('meta[name="description"]');
 
       expect(metaDescription?.getAttribute('content')).toBe(
         "Explore the genealogy of CoopCast chickens through an interactive family tree showing generations, breeds, and relationships."
@@ -91,8 +108,8 @@ describe('Meta Descriptions', () => {
 
   describe('Lighthouse CI Compatibility', () => {
     it('homepage meta description should pass Lighthouse meta-description audit', () => {
-      const { container } = render(<IndexHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(IndexHead);
+      const metaDescription = queryMeta('meta[name="description"]');
 
       // Lighthouse requires:
       // 1. Meta description exists
@@ -104,8 +121,8 @@ describe('Meta Descriptions', () => {
     });
 
     it('family-tree meta description should pass Lighthouse meta-description audit', () => {
-      const { container } = render(<FamilyTreeHead />);
-      const metaDescription = container.querySelector('meta[name="description"]');
+      const { queryMeta } = renderHead(FamilyTreeHead);
+      const metaDescription = queryMeta('meta[name="description"]');
 
       expect(metaDescription).toBeInTheDocument();
       expect(metaDescription).toHaveAttribute('content');

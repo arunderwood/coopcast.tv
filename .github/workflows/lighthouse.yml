@@ -151,7 +151,7 @@ jobs:
 
               const checks = [
                 { name: 'Font Size', key: 'font-size', pass: audits['font-size']?.score === 1 },
-                { name: 'Tap Targets', key: 'tap-targets', pass: audits['tap-targets']?.score === 1 },
+                { name: 'Target Size', key: 'target-size', pass: audits['target-size']?.score === 1 },
                 { name: 'Viewport', key: 'viewport', pass: audits.viewport?.score === 1 }
               ];
 

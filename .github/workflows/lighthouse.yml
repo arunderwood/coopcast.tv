@@ -125,36 +125,42 @@ jobs:
 
             const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 
+            // Get representative runs only (one per URL)
+            const representativeRuns = manifest.filter(entry => entry.isRepresentativeRun);
+            // Fallback: if no representative runs marked, dedupe by URL (take first of each)
+            const runsToShow = representativeRuns.length > 0 ? representativeRuns :
+              [...new Map(manifest.map(e => [new URL(JSON.parse(fs.readFileSync(e.jsonPath, 'utf8')).finalUrl).pathname, e])).values()];
+
+            const formatScore = (score) => {
+              if (score === null || score === undefined) return 'N/A';
+              const pct = Math.round(score * 100);
+              if (pct >= 90) return `🟢 ${pct}`;
+              if (pct >= 50) return `🟡 ${pct}`;
+              return `🔴 ${pct}`;
+            };
+
             // Build comment body
             let comment = '## 📱 Lighthouse CI Mobile Report\n\n';
             comment += '| URL | Performance | Accessibility | Best Practices | SEO |\n';
             comment += '|-----|-------------|---------------|----------------|-----|\n';
 
-            for (const entry of manifest) {
+            for (const entry of runsToShow) {
               const lhr = JSON.parse(fs.readFileSync(entry.jsonPath, 'utf8'));
               const url = new URL(lhr.finalUrl).pathname || '/';
               const cats = lhr.categories;
-
-              const formatScore = (score) => {
-                if (!score) return 'N/A';
-                const pct = Math.round(score * 100);
-                if (pct >= 90) return `🟢 ${pct}`;
-                if (pct >= 50) return `🟡 ${pct}`;
-                return `🔴 ${pct}`;
-              };
 
               comment += `| ${url} | ${formatScore(cats.performance?.score)} | ${formatScore(cats.accessibility?.score)} | ${formatScore(cats['best-practices']?.score)} | ${formatScore(cats.seo?.score)} |\n`;
             }
 
             comment += '\n**Key Mobile Usability Checks:**\n';
-            comment += manifest.map(entry => {
+            comment += runsToShow.map(entry => {
               const lhr = JSON.parse(fs.readFileSync(entry.jsonPath, 'utf8'));
               const url = new URL(lhr.finalUrl).pathname || '/';
               const audits = lhr.audits;
 
               const checks = [
                 { name: 'Tap Targets', key: 'tap-targets', pass: audits['tap-targets']?.score === 1 },
-                { name: 'Viewport', key: 'viewport', pass: audits.viewport?.score === 1 }
+                { name: 'Viewport', key: 'meta-viewport', pass: audits['meta-viewport']?.score === 1 }
               ];
 
               return `\n**${url}:**\n` + checks.map(c =>

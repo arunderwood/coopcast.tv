@@ -85,10 +85,13 @@ jobs:
         working-directory: ./frontend
         run: |
           if [ "${{ steps.url.outputs.url }}" = "preview" ]; then
-            LHCI_URL="${{ steps.cloudflare.outputs.url }}" npm run lhci
+            BASE_URL="${{ steps.cloudflare.outputs.url }}"
           else
-            LHCI_URL="${{ steps.url.outputs.url }}" npm run lhci
+            BASE_URL="${{ steps.url.outputs.url }}"
           fi
+          npx lhci autorun --config=./lighthouserc.json \
+            --collect.url="$BASE_URL" \
+            --collect.url="$BASE_URL/family-tree"
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -150,7 +153,6 @@ jobs:
               const audits = lhr.audits;
 
               const checks = [
-                { name: 'Font Size', key: 'font-size', pass: audits['font-size']?.score === 1 },
                 { name: 'Tap Targets', key: 'tap-targets', pass: audits['tap-targets']?.score === 1 },
                 { name: 'Viewport', key: 'viewport', pass: audits.viewport?.score === 1 }
               ];

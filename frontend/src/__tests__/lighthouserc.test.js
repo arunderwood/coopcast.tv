@@ -47,20 +47,18 @@ describe('Lighthouse CI Configuration', () => {
       expect(hasFamilyTree).toBe(true);
     });
 
+    it('should run 3 times for reliable results', () => {
+      expect(config.ci.collect.numberOfRuns).toBe(3);
+    });
+
     it('should emulate mobile form factor', () => {
       expect(config.ci.collect.settings).toHaveProperty('emulatedFormFactor');
       expect(config.ci.collect.settings.emulatedFormFactor).toBe('mobile');
     });
 
-    it('should have mobile throttling configuration', () => {
-      const throttling = config.ci.collect.settings.throttling;
-
-      expect(throttling).toHaveProperty('rttMs');
-      expect(throttling).toHaveProperty('throughputKbps');
-      expect(throttling).toHaveProperty('cpuSlowdownMultiplier');
-
-      // Mobile throttling values
-      expect(throttling.cpuSlowdownMultiplier).toBe(4);
+    it('should use default throttling (no custom config)', () => {
+      // Best practice: use Lighthouse defaults rather than custom throttling
+      expect(config.ci.collect.settings).not.toHaveProperty('throttling');
     });
 
     it('should specify output directory', () => {
@@ -69,24 +67,19 @@ describe('Lighthouse CI Configuration', () => {
     });
   });
 
-  describe('Assertions', () => {
-    it('should have critical mobile usability assertions', () => {
+  describe('Category Score Assertions', () => {
+    it('should have performance category assertion with median aggregation', () => {
       const assertions = config.ci.assert.assertions;
 
-      // Font size (critical for readability)
-      expect(assertions).toHaveProperty('font-size');
-      expect(assertions['font-size']).toEqual(['error']);
-
-      // HTML lang attribute (critical for accessibility)
-      expect(assertions).toHaveProperty('html-has-lang');
-      expect(assertions['html-has-lang']).toEqual(['error']);
-
-      // Viewport (critical for mobile)
-      expect(assertions).toHaveProperty('viewport');
-      expect(assertions.viewport).toEqual(['error']);
+      expect(assertions).toHaveProperty('categories:performance');
+      expect(assertions['categories:performance'][0]).toBe('warn');
+      expect(assertions['categories:performance'][1]).toHaveProperty('minScore');
+      expect(assertions['categories:performance'][1].minScore).toBe(0.7);
+      expect(assertions['categories:performance'][1]).toHaveProperty('aggregationMethod');
+      expect(assertions['categories:performance'][1].aggregationMethod).toBe('median');
     });
 
-    it('should have accessibility score requirement', () => {
+    it('should have accessibility score requirement as error', () => {
       const assertions = config.ci.assert.assertions;
 
       expect(assertions).toHaveProperty('categories:accessibility');
@@ -95,18 +88,86 @@ describe('Lighthouse CI Configuration', () => {
       expect(assertions['categories:accessibility'][1].minScore).toBe(0.9);
     });
 
-    it('should have best practices as warning (not error)', () => {
+    it('should have best practices as warning', () => {
       const assertions = config.ci.assert.assertions;
 
       expect(assertions).toHaveProperty('categories:best-practices');
       expect(assertions['categories:best-practices'][0]).toBe('warn');
+      expect(assertions['categories:best-practices'][1].minScore).toBe(0.9);
     });
 
-    it('should require meta descriptions (SEO)', () => {
+    it('should have SEO category assertion', () => {
+      const assertions = config.ci.assert.assertions;
+
+      expect(assertions).toHaveProperty('categories:seo');
+      expect(assertions['categories:seo'][0]).toBe('warn');
+      expect(assertions['categories:seo'][1].minScore).toBe(0.9);
+    });
+  });
+
+  describe('Core Web Vitals Assertions', () => {
+    it('should have Largest Contentful Paint threshold', () => {
+      const assertions = config.ci.assert.assertions;
+
+      expect(assertions).toHaveProperty('largest-contentful-paint');
+      expect(assertions['largest-contentful-paint'][0]).toBe('warn');
+      expect(assertions['largest-contentful-paint'][1]).toHaveProperty('maxNumericValue');
+      expect(assertions['largest-contentful-paint'][1].maxNumericValue).toBe(2500);
+    });
+
+    it('should have Cumulative Layout Shift threshold', () => {
+      const assertions = config.ci.assert.assertions;
+
+      expect(assertions).toHaveProperty('cumulative-layout-shift');
+      expect(assertions['cumulative-layout-shift'][0]).toBe('warn');
+      expect(assertions['cumulative-layout-shift'][1]).toHaveProperty('maxNumericValue');
+      expect(assertions['cumulative-layout-shift'][1].maxNumericValue).toBe(0.1);
+    });
+
+    it('should have Total Blocking Time threshold', () => {
+      const assertions = config.ci.assert.assertions;
+
+      expect(assertions).toHaveProperty('total-blocking-time');
+      expect(assertions['total-blocking-time'][0]).toBe('warn');
+      expect(assertions['total-blocking-time'][1]).toHaveProperty('maxNumericValue');
+      expect(assertions['total-blocking-time'][1].maxNumericValue).toBe(300);
+    });
+  });
+
+  describe('Individual Audit Assertions', () => {
+    it('should have critical accessibility assertions', () => {
+      const assertions = config.ci.assert.assertions;
+
+      // HTML lang attribute (critical for accessibility)
+      expect(assertions).toHaveProperty('html-has-lang');
+      expect(assertions['html-has-lang'][0]).toBe('error');
+      expect(assertions['html-has-lang'][1]).toHaveProperty('minScore', 1);
+
+      // Viewport (critical for mobile) - audit renamed to meta-viewport in Lighthouse 12+
+      expect(assertions).toHaveProperty('meta-viewport');
+      expect(assertions['meta-viewport'][0]).toBe('error');
+      expect(assertions['meta-viewport'][1]).toHaveProperty('minScore', 1);
+    });
+
+    it('should require meta descriptions for SEO', () => {
       const assertions = config.ci.assert.assertions;
 
       expect(assertions).toHaveProperty('meta-description');
-      expect(assertions['meta-description']).toEqual(['warn']);
+      expect(assertions['meta-description'][0]).toBe('warn');
+      expect(assertions['meta-description'][1]).toHaveProperty('minScore', 1);
+    });
+
+    it('should not have deprecated font-size assertion', () => {
+      // font-size audit is deprecated in Lighthouse 13
+      const assertions = config.ci.assert.assertions;
+      expect(assertions).not.toHaveProperty('font-size');
+    });
+
+    it('should not test tap-targets (known limitation)', () => {
+      // Tap targets currently fail on some elements, but this is a known limitation
+      // of the family tree SVG interaction. We test this manually with mobile-ux-tester.
+      const assertions = config.ci.assert.assertions;
+      expect(assertions).not.toHaveProperty('tap-targets');
     });
   });
 
@@ -118,31 +179,6 @@ describe('Lighthouse CI Configuration', () => {
     it('should have GitHub status context suffix', () => {
       expect(config.ci.upload).toHaveProperty('githubStatusContextSuffix');
       expect(config.ci.upload.githubStatusContextSuffix).toBe('/mobile');
-    });
-  });
-
-  describe('Mobile Testing Compliance', () => {
-    it('should test critical Lighthouse mobile audits', () => {
-      const assertions = config.ci.assert.assertions;
-
-      // These are the audits that were failing before our fixes
-      const criticalMobileAudits = [
-        'font-size',         // Was failing: 8px/9px/10px fonts
-        'html-has-lang',     // Was failing: no lang attribute
-        'viewport',          // Mobile viewport
-        'meta-description'   // SEO requirement
-      ];
-
-      criticalMobileAudits.forEach(audit => {
-        expect(assertions).toHaveProperty(audit);
-      });
-    });
-
-    it('should not test tap-targets (known limitation)', () => {
-      // Tap targets currently fail on some elements, but this is a known limitation
-      // of the family tree SVG interaction. We test this manually with mobile-ux-tester.
-      const assertions = config.ci.assert.assertions;
-      expect(assertions).not.toHaveProperty('tap-targets');
     });
   });
 

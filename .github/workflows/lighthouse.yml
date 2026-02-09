@@ -50,7 +50,9 @@ jobs:
             const maxAttempts = 30; // 5 minutes max
             const delay = 10000; // 10 seconds
 
-            console.log('Waiting for Cloudflare Pages deployment...');
+            // Get current commit SHA (first 7 chars to match Cloudflare's format)
+            const currentSha = context.payload.pull_request.head.sha.substring(0, 7);
+            console.log(`Waiting for Cloudflare deployment of commit ${currentSha}...`);
 
             for (let i = 0; i < maxAttempts; i++) {
               const comments = await github.rest.issues.listComments({
@@ -61,7 +63,8 @@ jobs:
 
               const cfComment = comments.data.find(c =>
                 c.user.login === 'cloudflare-workers-and-pages[bot]' &&
-                c.body.includes('Deploy successful!')
+                c.body.includes('Deploy successful!') &&
+                c.body.includes(currentSha) // Verify it's for THIS commit
               );
 
               if (cfComment) {
@@ -69,17 +72,17 @@ jobs:
                 const match = cfComment.body.match(/href='(https:\/\/[a-f0-9]+\.coopcast-tv\.pages\.dev)'/);
                 if (match) {
                   const previewUrl = match[1];
-                  console.log(`Found Cloudflare preview URL: ${previewUrl}`);
+                  console.log(`Found Cloudflare preview URL for ${currentSha}: ${previewUrl}`);
                   core.setOutput('url', previewUrl);
                   return previewUrl;
                 }
               }
 
-              console.log(`Attempt ${i + 1}/${maxAttempts}: Deployment not ready yet...`);
+              console.log(`Attempt ${i + 1}/${maxAttempts}: Deployment for ${currentSha} not ready yet...`);
               await new Promise(resolve => setTimeout(resolve, delay));
             }
 
-            throw new Error('Cloudflare deployment timeout after 5 minutes');
+            throw new Error(`Cloudflare deployment timeout for commit ${currentSha} after 5 minutes`);
 
       - name: Run Lighthouse CI
         working-directory: ./frontend
@@ -94,6 +97,27 @@ jobs:
             --collect.url="$BASE_URL/family-tree"
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Debug LHCI output
+        if: always()
+        working-directory: ./frontend
+        run: |
+          echo "=== LHCI output directory contents ==="
+          ls -la .lighthouseci/ || echo "Directory not found"
+          echo ""
+          echo "=== Checking category scores in reports ==="
+          for f in .lighthouseci/lhr-*.json; do
+            if [ -f "$f" ]; then
+              echo "File: $f"
+              cat "$f" | jq '{
+                url: .finalUrl,
+                performance: .categories.performance.score,
+                accessibility: .categories.accessibility.score,
+                "best-practices": .categories["best-practices"].score,
+                seo: .categories.seo.score
+              }' 2>/dev/null || echo "Failed to parse"
+            fi
+          done
 
       - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v6

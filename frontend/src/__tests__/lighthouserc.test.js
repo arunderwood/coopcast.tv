@@ -51,12 +51,9 @@ describe('Lighthouse CI Configuration', () => {
       expect(config.ci.collect.numberOfRuns).toBe(3);
     });
 
-    it('should emulate mobile form factor', () => {
-      // formFactor replaces deprecated emulatedFormFactor in Lighthouse v7+
-      expect(config.ci.collect.settings).toHaveProperty('formFactor');
-      expect(config.ci.collect.settings.formFactor).toBe('mobile');
-      expect(config.ci.collect.settings).toHaveProperty('screenEmulation');
-      expect(config.ci.collect.settings.screenEmulation.mobile).toBe(true);
+    it('should use mobile preset', () => {
+      expect(config.ci.collect.settings).toHaveProperty('preset');
+      expect(config.ci.collect.settings.preset).toBe('mobile');
     });
 
     it('should use default throttling (no custom config)', () => {

@@ -51,10 +51,14 @@ describe('Lighthouse CI Configuration', () => {
       expect(config.ci.collect.numberOfRuns).toBe(3);
     });
 
-    it('should use Lighthouse defaults (mobile emulation)', () => {
-      // Best practice: use Lighthouse defaults which are mobile
-      // No custom settings = Lighthouse uses mobile emulation by default
-      expect(config.ci.collect.settings).toBeUndefined();
+    it('should explicitly enable all required categories', () => {
+      // Workaround for LHCI bug where categories return NaN in CI environments
+      // See: https://github.com/GoogleChrome/lighthouse-ci/issues/735
+      // See: https://github.com/GoogleChrome/lighthouse-ci/issues/1113
+      expect(config.ci.collect.settings).toHaveProperty('onlyCategories');
+      expect(config.ci.collect.settings.onlyCategories).toEqual([
+        'performance', 'accessibility', 'best-practices', 'seo'
+      ]);
     });
 
     it('should specify output directory', () => {

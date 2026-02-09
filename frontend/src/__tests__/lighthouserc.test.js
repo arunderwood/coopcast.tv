@@ -51,17 +51,14 @@ describe('Lighthouse CI Configuration', () => {
       expect(config.ci.collect.numberOfRuns).toBe(3);
     });
 
-    it('should explicitly configure mobile settings and categories', () => {
-      // Workaround for LHCI bug where categories return NaN in CI environments
-      // See: https://github.com/GoogleChrome/lighthouse-ci/issues/735
-      // See: https://github.com/GoogleChrome/lighthouse-ci/issues/1113
+    it('should explicitly configure mobile settings and chrome flags', () => {
+      // Mobile emulation settings
       expect(config.ci.collect.settings).toHaveProperty('formFactor', 'mobile');
       expect(config.ci.collect.settings).toHaveProperty('screenEmulation');
       expect(config.ci.collect.settings.screenEmulation.mobile).toBe(true);
-      expect(config.ci.collect.settings).toHaveProperty('onlyCategories');
-      expect(config.ci.collect.settings.onlyCategories).toEqual([
-        'performance', 'accessibility', 'best-practices', 'seo'
-      ]);
+      // Chrome flags for CI compatibility
+      expect(config.ci.collect.settings).toHaveProperty('chromeFlags');
+      expect(config.ci.collect.settings.chromeFlags).toContain('--no-sandbox');
     });
 
     it('should specify output directory', () => {

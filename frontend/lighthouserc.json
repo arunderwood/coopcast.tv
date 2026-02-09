@@ -15,7 +15,7 @@
           "deviceScaleFactor": 2.625,
           "disabled": false
         },
-        "onlyCategories": ["performance", "accessibility", "best-practices", "seo"]
+        "chromeFlags": ["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"]
       },
       "outputDir": ".lighthouseci"
     },

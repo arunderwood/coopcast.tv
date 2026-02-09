@@ -7,6 +7,14 @@
       ],
       "numberOfRuns": 3,
       "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 640,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
         "onlyCategories": ["performance", "accessibility", "best-practices", "seo"]
       },
       "outputDir": ".lighthouseci"

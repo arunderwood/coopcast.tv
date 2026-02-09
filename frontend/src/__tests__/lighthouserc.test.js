@@ -51,14 +51,10 @@ describe('Lighthouse CI Configuration', () => {
       expect(config.ci.collect.numberOfRuns).toBe(3);
     });
 
-    it('should use mobile preset', () => {
-      expect(config.ci.collect.settings).toHaveProperty('preset');
-      expect(config.ci.collect.settings.preset).toBe('mobile');
-    });
-
-    it('should use default throttling (no custom config)', () => {
-      // Best practice: use Lighthouse defaults rather than custom throttling
-      expect(config.ci.collect.settings).not.toHaveProperty('throttling');
+    it('should use Lighthouse defaults (mobile emulation)', () => {
+      // Best practice: use Lighthouse defaults which are mobile
+      // No custom settings = Lighthouse uses mobile emulation by default
+      expect(config.ci.collect.settings).toBeUndefined();
     });
 
     it('should specify output directory', () => {

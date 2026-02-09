@@ -6,9 +6,6 @@
         "${LHCI_URL}/family-tree"
       ],
       "numberOfRuns": 3,
-      "settings": {
-        "preset": "mobile"
-      },
       "outputDir": ".lighthouseci"
     },
     "assert": {

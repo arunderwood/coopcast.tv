@@ -88,20 +88,14 @@ describe('Lighthouse CI Configuration', () => {
       expect(assertions['categories:accessibility'][1].minScore).toBe(0.9);
     });
 
-    it('should have best practices as warning', () => {
+    it('should not have best-practices or seo assertions (known LHCI bug)', () => {
+      // These categories return null in CI due to a known Lighthouse CI bug
+      // See: https://github.com/GoogleChrome/lighthouse-ci/issues/735
+      // See: https://github.com/GoogleChrome/lighthouse-ci/issues/1113
       const assertions = config.ci.assert.assertions;
 
-      expect(assertions).toHaveProperty('categories:best-practices');
-      expect(assertions['categories:best-practices'][0]).toBe('warn');
-      expect(assertions['categories:best-practices'][1].minScore).toBe(0.9);
-    });
-
-    it('should have SEO category assertion', () => {
-      const assertions = config.ci.assert.assertions;
-
-      expect(assertions).toHaveProperty('categories:seo');
-      expect(assertions['categories:seo'][0]).toBe('warn');
-      expect(assertions['categories:seo'][1].minScore).toBe(0.9);
+      expect(assertions).not.toHaveProperty('categories:best-practices');
+      expect(assertions).not.toHaveProperty('categories:seo');
     });
   });
 
@@ -149,12 +143,12 @@ describe('Lighthouse CI Configuration', () => {
       expect(assertions['meta-viewport'][1]).toHaveProperty('minScore', 1);
     });
 
-    it('should require meta descriptions for SEO', () => {
+    it('should not have meta-description assertion (known LHCI bug)', () => {
+      // meta-description returns null in CI due to same bug as categories
+      // See: https://github.com/GoogleChrome/lighthouse-ci/issues/735
       const assertions = config.ci.assert.assertions;
 
-      expect(assertions).toHaveProperty('meta-description');
-      expect(assertions['meta-description'][0]).toBe('warn');
-      expect(assertions['meta-description'][1]).toHaveProperty('minScore', 1);
+      expect(assertions).not.toHaveProperty('meta-description');
     });
 
     it('should not have deprecated font-size assertion', () => {

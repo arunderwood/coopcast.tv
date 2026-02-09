@@ -98,35 +98,12 @@ jobs:
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Debug LHCI output
-        if: always()
-        working-directory: ./frontend
-        run: |
-          echo "=== LHCI output directory contents ==="
-          ls -la .lighthouseci/ || echo "Directory not found"
-          echo ""
-          echo "=== Checking category scores in reports ==="
-          for f in .lighthouseci/lhr-*.json; do
-            if [ -f "$f" ]; then
-              echo "File: $f"
-              cat "$f" | jq '{
-                url: .finalUrl,
-                performance: .categories.performance.score,
-                accessibility: .categories.accessibility.score,
-                "best-practices": .categories["best-practices"].score,
-                seo: .categories.seo.score
-              }' 2>/dev/null || echo "Failed to parse"
-            fi
-          done
-
       - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v6
         if: always()
         with:
           name: lighthouse-reports
-          path: |
-            frontend/.lighthouseci/**/*.json
-            frontend/.lighthouseci/**/*.html
+          path: frontend/.lighthouseci/
           retention-days: 30
           if-no-files-found: warn
 

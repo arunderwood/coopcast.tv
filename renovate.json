@@ -1,6 +1,42 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    ":maintainLockFilesWeekly"
+  ],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Group Gatsby packages",
+      "matchPackagePatterns": ["^gatsby"],
+      "groupName": "gatsby"
+    },
+    {
+      "description": "Group Babel packages",
+      "matchPackagePatterns": ["^@babel"],
+      "groupName": "babel"
+    },
+    {
+      "description": "Group testing packages",
+      "matchPackagePatterns": ["^jest", "^@testing-library", "^babel-jest"],
+      "groupName": "testing"
+    },
+    {
+      "description": "Group React packages",
+      "matchPackageNames": ["react", "react-dom"],
+      "groupName": "react"
+    },
+    {
+      "description": "Auto-merge patch updates for dev dependencies",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "description": "Auto-merge GitHub Actions minor/patch updates",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    }
   ]
 }

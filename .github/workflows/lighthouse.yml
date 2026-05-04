@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Wait for Cloudflare deployment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         id: cloudflare
         if: steps.url.outputs.url == 'preview'
         with:
@@ -108,7 +108,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Add PR comment with results
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         if: github.event_name == 'pull_request' && always()
         with:
           script: |

@@ -37,9 +37,9 @@
     "read-gedcom": "^0.3.2"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.28.6",
-    "@babel/preset-env": "^7.29.0",
-    "@babel/preset-react": "^7.28.5",
+    "@babel/eslint-parser": "^8.0.0",
+    "@babel/preset-env": "^8.0.0",
+    "@babel/preset-react": "^8.0.0",
     "@lhci/cli": "^0.15.1",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@testing-library/jest-dom": "^6.9.1",

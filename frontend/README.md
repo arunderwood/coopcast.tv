@@ -133,7 +133,6 @@ Tests validate:
 
 ### Gatsby Plugins
 - **gatsby-plugin-manifest** - PWA manifest
-- **gatsby-plugin-mdx** - MDX support
 - **gatsby-source-filesystem** - File system data
 
 ### Family Tree

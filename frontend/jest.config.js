@@ -8,7 +8,9 @@ module.exports = {
     '^gatsby-plugin-utils/(.*)$': 'gatsby-plugin-utils/dist/$1',
   },
   transform: {
-    '^.+\\.[jt]sx?$': '<rootDir>/jest-preprocess.js',
+    // m? covers .mjs: d3 packages resolve to ESM-only .mjs entries, which
+    // Jest can only require once they are compiled to CJS.
+    '^.+\\.m?[jt]sx?$': '<rootDir>/jest-preprocess.js',
   },
   transformIgnorePatterns: [
     'node_modules/(?!(gatsby|gatsby-script|gatsby-link|family-chart|d3|d3-.*)/)',

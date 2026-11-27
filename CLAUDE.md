@@ -95,7 +95,7 @@ npm clean
 
 ### Gatsby Configuration
 - Configured in `frontend/gatsby-config.js`
-- Uses plugins: `gatsby-plugin-manifest`, `gatsby-plugin-mdx`, `gatsby-source-filesystem`
+- Uses plugins: `gatsby-plugin-manifest`, `gatsby-source-filesystem`
 - Site metadata includes title and siteUrl
 
 ### Main Components
